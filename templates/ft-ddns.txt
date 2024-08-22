@@ -1,0 +1,19 @@
+#!/bin/sh
+
+########### Config section ###############
+#
+# URL at which the server connects to
+ENDPOINT="{{ Self::url() }}"
+
+# Domain name to refresh the IP
+DOMAIN="{{ username }}"
+
+# IP given for the domain name
+PASSWORD="{{ password }}"
+#
+############ End of Config ###############
+
+# Attempt to connect and complete a request 3 times
+for i in 1 2 3; do
+  curl -u $DOMAIN:$PASSWORD $ENDPOINT && break || sleep 60
+done

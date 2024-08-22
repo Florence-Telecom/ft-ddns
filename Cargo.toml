@@ -1,0 +1,50 @@
+[package]
+name = "ft-ddns"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/Florence-Telecom/ft-ddns"
+keywords = ["dns", "route53", "middleware"]
+categories = ["network-programming", "api-bindings"]
+readme = "README.md"
+description = "Florence Telecom's Dynamic DNS middleware for Route53"
+authors = ["Antoine Charbonneau <antoine@florencetelecom.com>"]
+
+[workspace]
+members = ["migration"]
+
+[features]
+default = ["mysql", "postgres", "sqlite"]
+
+mysql = ["sea-orm/sqlx-mysql", "migration/mysql"]
+postgres = ["sea-orm/sqlx-postgres", "migration/postgres"]
+sqlite = ["sea-orm/sqlx-sqlite", "migration/sqlite"]
+
+# Bake in OpenSSL library into the binary instead of having it linked.
+openssl-vendored = ["openssl/vendored"]
+
+# Turns AWS requests into read-only mode, making sure that no changes are sent upstream.
+read_only_aws = []
+
+[dependencies]
+aws-config = "1.1.4"
+aws-sdk-route53 = "1.13.0"
+rocket = { version = "0.5.0", features = ["json"] }
+sea-orm = { version = "0.12.12", features = [
+    "macros",
+    "runtime-tokio-native-tls",
+] }
+migration = { path = "migration" }
+argon2 = "0.5.3"
+fqdn-trie = "0.4.2"
+fqdn = { version = "0.3.2", features = ["domain-name-length-limited-to-255"] }
+rocket-basicauth = "3.0.0"
+log = "0.4.20"
+rand = "0.8.5"
+fern = "0.6.2"
+humantime = "2.1.0"
+askama = { version = "0.12.1", features = ["with-rocket"] }
+askama_rocket = "0.12.0"
+chrono = "0.4.38"
+openssl = { version = "0.10.66", features = [] }
+base64 = "0.22.1"

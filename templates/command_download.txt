@@ -1,0 +1,13 @@
+Successfully created account for domain "{{ username }}" with password:
+
+{{ password }}
+
+To install the script on a machine with curl, run the following commands:
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"username":"{{ username }}","password":"{{ password }}"}' \
+  {{ Self::url() }} \
+  --output /opt/ft-ddns.sh; \
+chmod 0700 /opt/ft-ddns.sh; \
+echo "*/15 * * * * root /opt/ft-ddns" >> /etc/crontab
