@@ -1,3 +1,5 @@
+use std::net::IpAddr;
+
 /// The signature account database entity
 ///
 /// Signature accounts are used when a device cannot use secure connections.
@@ -96,6 +98,12 @@ impl<'r> FromRequest<'r> for SigningAccount {
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, ()> {
         let db: &DbConn = request.rocket().state::<DbConn>().unwrap();
+        let ip: IpAddr = if let Some(ip) = request.client_ip() {
+            ip
+        } else {
+            log::warn!("Request had no IP.");
+            return request::Outcome::Error((http::Status::BadRequest, ()));
+        };
 
         let headers = request.headers();
         let date = headers.get_one("Ftddns-Date");
@@ -104,7 +112,7 @@ impl<'r> FromRequest<'r> for SigningAccount {
 
         let (date_str, domain, signature): (&str, String, &str) =
             if date.is_none() || domain.is_none() || signature.is_none() {
-                log::warn!("Missing headers");
+                log::warn!("{ip}: Missing headers");
                 return request::Outcome::Error((http::Status::PreconditionFailed, ()));
             } else {
                 (date.unwrap(), domain.unwrap(), signature.unwrap())
@@ -115,16 +123,16 @@ impl<'r> FromRequest<'r> for SigningAccount {
         {
             const SIGNATURE_TIME_MARGIN: i64 = 60;
             if dt > Utc::now() + chrono::Duration::seconds(SIGNATURE_TIME_MARGIN) {
-                log::warn!("Signature date is in the future");
+                log::warn!("{ip}'s signature date is in the future for {domain}");
                 return request::Outcome::Error((http::Status::NotAcceptable, ()));
             }
 
             if dt < Utc::now() - chrono::Duration::seconds(SIGNATURE_TIME_MARGIN) {
-                log::warn!("Signature date is in the past");
+                log::warn!("{ip}'s signature date is in the past for {domain}");
                 return request::Outcome::Error((http::Status::NotAcceptable, ()));
             }
         } else {
-            log::warn!("Invalid date format");
+            log::warn!("Invalid date format from {ip} for {domain}");
             return request::Outcome::Error((http::Status::BadRequest, ()));
         }
 
@@ -133,18 +141,18 @@ impl<'r> FromRequest<'r> for SigningAccount {
             if let Some(public_key) = result {
                 public_key
             } else {
-                log::warn!("Domain does not exist in the system");
+                log::warn!("Domain requested by {ip} does not exist in the system: {domain}");
                 return request::Outcome::Error((http::Status::NotFound, ()));
             }
         } else {
-            log::error!("Database error");
+            log::error!("Database error while serving {ip}");
             return request::Outcome::Error((http::Status::InternalServerError, ()));
         };
 
         let binary_signature = if let Ok(binary) = BASE64_STANDARD.decode(signature.as_bytes()) {
             binary
         } else {
-            log::warn!("Invalid base64 encoding");
+            log::warn!("Invalid base64 encoding sent by {ip} while requesting {domain}");
             return request::Outcome::Error((http::Status::BadRequest, ()));
         };
 
@@ -155,12 +163,12 @@ impl<'r> FromRequest<'r> for SigningAccount {
 
         match verification {
             Err(_) => {
-                log::warn!("Signature verification error");
+                log::warn!("Signature verification error for {domain} from {ip}");
                 return request::Outcome::Error((http::Status::Unauthorized, ()));
             }
             Ok(v) => {
                 if !v {
-                    log::warn!("Signature verification failed");
+                    log::warn!("Signature verification failed for {domain} from {ip}");
                     return request::Outcome::Error((http::Status::Unauthorized, ()));
                 }
             }
