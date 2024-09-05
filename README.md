@@ -108,6 +108,6 @@ My principle use case is to use it in a lightweight Alpine Linux container. For 
 
 ## Planned features
 
-- [ ] Automatic configuration of own domain name on startup
+- [x] Automatic configuration of own domain name on startup (Done, version 1.1)
 - [ ] Caching of IP to not do unnecessary writes and better tracking of changes
 - [ ] Endpoint served deployment scripts for easy installation
