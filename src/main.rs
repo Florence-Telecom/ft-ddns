@@ -19,11 +19,16 @@ async fn rocket() -> Rocket<Build> {
         .merge(("address", IpAddr::V4(Ipv4Addr::UNSPECIFIED)))
         .merge(("log_level", LogLevel::Critical));
 
-    rocket::custom(figment)
+    let rocket = rocket::custom(figment)
         .attach(init::db::stage())
         .attach(route53::stage())
         .attach(stage_rng())
         .attach(routes::secure_http::stage())
         .attach(routes::unsecure_http::stage())
-        .attach(routes::management::stage())
+        .attach(routes::management::stage());
+
+    #[cfg(feature = "aws_auto_config")]
+    let rocket = rocket.attach(init::auto_config::autoset_dns());
+
+    rocket
 }

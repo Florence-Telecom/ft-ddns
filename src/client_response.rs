@@ -27,3 +27,13 @@ pub enum ClientResponse {
     #[response(status = 503)]
     ServiceUnavailable(String),
 }
+
+impl ClientResponse {
+    #[allow(unused)]
+    pub fn is_ok(&self) -> bool {
+        match self {
+            ClientResponse::Ok(_) => true,
+            _ => false,
+        }
+    }
+}

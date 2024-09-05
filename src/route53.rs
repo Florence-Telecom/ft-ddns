@@ -26,7 +26,8 @@ pub struct Route53 {
 }
 
 impl Route53 {
-    pub fn domain_included(&self, domain: FQDN) -> bool {
+    #[inline]
+    pub fn domain_included(&self, domain: &FQDN) -> bool {
         self.hosted_zone_map.lookup(domain).is_some()
     }
 

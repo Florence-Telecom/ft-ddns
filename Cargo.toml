@@ -16,9 +16,12 @@ members = ["migration"]
 [features]
 default = ["mysql", "postgres", "sqlite"]
 
+# Must have at least one of the three following features enabled
 mysql = ["sea-orm/sqlx-mysql", "migration/mysql"]
 postgres = ["sea-orm/sqlx-postgres", "migration/postgres"]
 sqlite = ["sea-orm/sqlx-sqlite", "migration/sqlite"]
+
+aws_auto_config = ["dep:reqwest"]
 
 # Bake in OpenSSL library into the binary instead of having it linked.
 openssl-vendored = ["openssl/vendored"]
@@ -48,3 +51,4 @@ askama_rocket = "0.12.0"
 chrono = "0.4.38"
 openssl = { version = "0.10.66", features = [] }
 base64 = "0.22.1"
+reqwest = { version = "0.12.7", optional = true }

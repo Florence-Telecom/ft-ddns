@@ -35,7 +35,7 @@ async fn add_password_domain(
     rng: &State<Mutex<StdRng>>,
 ) -> ClientResponse {
     let domain = domain.trim();
-    if !route53.inner().domain_included(fqdn!(&domain)) {
+    if !route53.inner().domain_included(&fqdn!(&domain)) {
         ::log::warn!(
             "The admin \"{}\" attempted to add the following domain, which is not supported: {}",
             admin.get_user(),
@@ -90,7 +90,7 @@ async fn add_signing_domain(
     db: &State<DbConn>,
 ) -> ClientResponse {
     let domain = domain.trim();
-    if !route53.inner().domain_included(fqdn!(&domain)) {
+    if !route53.inner().domain_included(&fqdn!(&domain)) {
         ::log::warn!(
             "The admin \"{}\" attempted to add the following domain, which is not supported: {}",
             admin.get_user(),
