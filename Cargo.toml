@@ -40,7 +40,7 @@ sea-orm = { version = "0.12.12", features = [
 migration = { path = "migration" }
 argon2 = "0.5.3"
 fqdn-trie = "0.4.2"
-fqdn = { version = "0.3.2", features = ["domain-name-length-limited-to-255"] }
+fqdn = { version = "0.4.4", features = ["domain-name-length-limited-to-255"] }
 rocket-basicauth = "3.0.0"
 log = "0.4.20"
 rand = "0.8.5"

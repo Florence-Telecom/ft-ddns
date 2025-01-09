@@ -3,7 +3,7 @@ use std::{env, net::Ipv4Addr, str::FromStr};
 use crate::client_response::ClientResponse;
 use aws_config::Region;
 use aws_sdk_route53 as r53;
-use fqdn::FQDN;
+use fqdn::{Fqdn, FQDN};
 use fqdn_trie::FqdnTrieMap;
 use r53::{
     error::ProvideErrorMetadata,
@@ -27,7 +27,7 @@ pub struct Route53 {
 
 impl Route53 {
     #[inline]
-    pub fn domain_included(&self, domain: &FQDN) -> bool {
+    pub fn domain_included(&self, domain: &Fqdn) -> bool {
         self.hosted_zone_map.lookup(domain).is_some()
     }
 
@@ -59,7 +59,7 @@ impl Route53 {
     async fn send_request(
         &self,
         change: r53::types::Change,
-        domain: &FQDN,
+        domain: &Fqdn,
         ip: &Ipv4Addr,
     ) -> ClientResponse {
         #[cfg(feature = "read_only_aws")]

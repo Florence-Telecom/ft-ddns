@@ -74,7 +74,7 @@ impl<'r> FromRequest<'r> for AdminAccount {
             None => request::Outcome::Error((http::Status::Unauthorized, ())),
             Some(d) => match compare_with_hash(&auth.password, &d.password_hash) {
                 Err(_) => request::Outcome::Error((http::Status::Unauthorized, ())),
-                Ok(()) => request::Outcome::Success(AdminAccount(d.user)),
+                Ok(()) => request::Outcome::Success(Self(d.user)),
             },
         }
     }
